@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.math.BigDecimal;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -109,6 +108,54 @@ public class BookingService {
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
+    }
+
+    @Transactional
+    public BookingResponse cancelMyBooking(String userEmail, Long bookingId) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Booking not found"));
+
+        if (!booking.getUser().getId().equals(user.getId())) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "You are not allowed to cancel this booking"
+            );
+        }
+
+        if (booking.getStatus() == BookingStatus.CANCELLED) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Booking is already cancelled"
+            );
+        }
+
+        if (booking.getStatus() == BookingStatus.COMPLETED) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Completed booking cannot be cancelled"
+            );
+        }
+
+        booking.setStatus(BookingStatus.CANCELLED);
+
+        Booking savedBooking = bookingRepository.save(booking);
+
+        return mapToResponse(savedBooking);
+    }
+
+    @Transactional
+    public BookingResponse updateBookingStatus(Long bookingId, BookingStatus status) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Booking not found"));
+
+        booking.setStatus(status);
+
+        Booking savedBooking = bookingRepository.save(booking);
+
+        return mapToResponse(savedBooking);
     }
 
     private BookingResponse mapToResponse(Booking booking) {
