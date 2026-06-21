@@ -5,6 +5,8 @@ import com.train.hotel_booking_system.dto.HotelResponse;
 import com.train.hotel_booking_system.entity.Hotel;
 import com.train.hotel_booking_system.repository.HotelRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -39,7 +41,7 @@ public class HotelService {
 
     public HotelResponse getHotelById(Long id) {
         Hotel hotel = hotelRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Hotel not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Hotel not found"));
 
         return mapToResponse(hotel);
     }

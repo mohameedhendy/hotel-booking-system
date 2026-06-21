@@ -8,6 +8,8 @@ import com.train.hotel_booking_system.repository.HotelRepository;
 import com.train.hotel_booking_system.repository.RoomRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -25,7 +27,7 @@ public class RoomService {
     @Transactional
     public RoomResponse createRoom(Long hotelId, CreateRoomRequest request) {
         Hotel hotel = hotelRepository.findById(hotelId)
-                .orElseThrow(() -> new RuntimeException("Hotel not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Hotel not found"));
 
         Room room = new Room();
         room.setRoomNumber(request.getRoomNumber());
@@ -59,7 +61,7 @@ public class RoomService {
     @Transactional(readOnly = true)
     public RoomResponse getRoomById(Long roomId) {
         Room room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new RuntimeException("Room not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found"));
 
         return mapToResponse(room);
     }
