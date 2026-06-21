@@ -6,6 +6,7 @@ import com.train.hotel_booking_system.entity.Hotel;
 import com.train.hotel_booking_system.repository.HotelRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -56,5 +57,13 @@ public class HotelService {
         response.setRating(hotel.getRating());
 
         return response;
+    }
+
+    @Transactional(readOnly = true)
+    public List<HotelResponse> searchHotelsByCity(String city) {
+        return hotelRepository.findByCityIgnoreCase(city)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 }

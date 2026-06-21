@@ -4,6 +4,7 @@ import com.train.hotel_booking_system.dto.CreateRoomRequest;
 import com.train.hotel_booking_system.dto.RoomResponse;
 import com.train.hotel_booking_system.entity.Hotel;
 import com.train.hotel_booking_system.entity.Room;
+import com.train.hotel_booking_system.entity.RoomType;
 import com.train.hotel_booking_system.repository.HotelRepository;
 import com.train.hotel_booking_system.repository.RoomRepository;
 import org.springframework.stereotype.Service;
@@ -80,5 +81,21 @@ public class RoomService {
         response.setHotelName(room.getHotel().getName());
 
         return response;
+    }
+
+    @Transactional(readOnly = true)
+    public List<RoomResponse> getAvailableRooms() {
+        return roomRepository.findByAvailableTrue()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<RoomResponse> getRoomsByType(RoomType roomType) {
+        return roomRepository.findByRoomType(roomType)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 }

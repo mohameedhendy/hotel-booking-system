@@ -34,4 +34,11 @@ public class HotelController {
     public List<RoomResponse> getRoomsByHotelId(@PathVariable Long hotelId) {
         return roomService.getRoomsByHotelId(hotelId);
     }
+
+    @GetMapping("/search")
+    public List<HotelResponse> searchHotelsByCity(
+            @RequestParam String city
+    ) {
+        return hotelService.searchHotelsByCity(city);
+    }
 }
