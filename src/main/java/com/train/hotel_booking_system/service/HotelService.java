@@ -8,6 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import com.train.hotel_booking_system.dto.PageResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -65,5 +69,31 @@ public class HotelService {
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<HotelResponse> getHotelsPaged(
+            int page,
+            int size,
+            String sortBy,
+            String direction
+    ) {
+        Sort sort = direction.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        Page<HotelResponse> hotelsPage = hotelRepository.findAll(pageRequest)
+                .map(this::mapToResponse);
+
+        return new PageResponse<>(
+                hotelsPage.getContent(),
+                hotelsPage.getNumber(),
+                hotelsPage.getSize(),
+                hotelsPage.getTotalElements(),
+                hotelsPage.getTotalPages(),
+                hotelsPage.isLast()
+        );
     }
 }

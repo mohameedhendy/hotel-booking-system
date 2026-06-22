@@ -4,7 +4,7 @@ import com.train.hotel_booking_system.dto.RoomResponse;
 import com.train.hotel_booking_system.entity.RoomType;
 import com.train.hotel_booking_system.service.RoomService;
 import org.springframework.web.bind.annotation.*;
-
+import com.train.hotel_booking_system.dto.PageResponse;
 import java.util.List;
 
 @RestController
@@ -32,5 +32,15 @@ public class RoomController {
             @PathVariable RoomType roomType
     ) {
         return roomService.getRoomsByType(roomType);
+    }
+
+    @GetMapping("/paged")
+    public PageResponse<RoomResponse> getRoomsPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction
+    ) {
+        return roomService.getRoomsPaged(page, size, sortBy, direction);
     }
 }
