@@ -1,26 +1,26 @@
 # Hotel Booking System
 
-A backend REST API for hotel booking management built with Spring Boot, PostgreSQL, and JWT Authentication.
+A backend-only hotel booking system built with **Java** and **Spring Boot**.
+The project focuses on building a clean REST API for hotel management, room management, user authentication, authorization, and booking workflows.
 
-## Overview
+---
 
-Hotel Booking System is a backend application that allows users to register, login, and manage hotel bookings through secure REST APIs.
+## Project Overview
 
-The project is built as a portfolio backend project using Java and Spring Boot, with a clean layered architecture and JWT-based authentication.
+The system allows users to browse hotels and rooms, register/login, and create bookings.
+Admins can manage hotels, rooms, bookings, and booking statuses.
 
-## Features
+This project was built as a practical backend project to apply:
 
-* User Registration
-* User Login
-* Password Encryption using BCrypt
-* JWT Authentication
-* Role-Based Authorization
-* Admin Protected APIs
-* PostgreSQL Database Integration
-* Spring Data JPA / Hibernate
-* RESTful API Structure
-* Database ERD Design
-* Maven Project Structure
+* REST API design
+* Authentication and JWT
+* Role-based authorization
+* Database relationships
+* Booking business logic
+* Validation and error handling
+* Pagination and filtering
+
+---
 
 ## Tech Stack
 
@@ -28,88 +28,164 @@ The project is built as a portfolio backend project using Java and Spring Boot, 
 * Spring Boot
 * Spring Web
 * Spring Security
+* JWT Authentication
 * Spring Data JPA
 * Hibernate
 * PostgreSQL
-* JWT
-* Maven
+* Bean Validation
 * Lombok
-* Git & GitHub
-* Postman
+* Maven
+* Postman for API testing
 
-## Project Structure
+---
 
-```text
-src/main/java/com/train/hotel_booking_system
-│
-├── config
-│   └── SecurityConfig.java
-│
-├── controller
-│   ├── AuthController.java
-│   ├── UserController.java
-│   └── AdminController.java
-│
-├── dto
-│   ├── RegisterRequest.java
-│   ├── UserResponse.java
-│   ├── LoginRequest.java
-│   └── LoginResponse.java
-│
-├── entity
-│   ├── User.java
-│   ├── Role.java
-│   ├── Hotel.java
-│   ├── RoomType.java
-│   └── BookingStatus.java
-│
-├── repository
-│   └── UserRepository.java
-│
-├── security
-│   ├── JwtService.java
-│   └── JwtAuthenticationFilter.java
-│
-├── service
-│   └── UserService.java
-│
-└── HotelBookingSystemApplication.java
+## Main Features
+
+### Authentication & Authorization
+
+* User registration
+* User login
+* JWT token generation
+* Role-based access control
+* Roles:
+
+    * USER
+    * ADMIN
+
+### Hotel Management
+
+* Admin can create hotels
+* Admin can update hotels
+* Admin can delete hotels
+* Public users can view hotels
+* Public users can search hotels by city
+* Pagination and sorting for hotels
+
+### Room Management
+
+* Admin can create rooms for a hotel
+* Admin can update rooms
+* Admin can delete rooms
+* Public users can view rooms
+* Public users can filter available rooms
+* Public users can filter rooms by room type
+* Pagination and sorting for rooms
+
+### Booking Management
+
+* User can create a booking
+* System calculates number of nights
+* System calculates total price automatically
+* System prevents overlapping bookings for the same room
+* User can view their bookings
+* User can cancel their booking
+* Admin can view all bookings
+* Admin can update booking status
+
+### Error Handling
+
+* Global exception handling
+* Validation error responses
+* Clean API error response format
+* Improved authentication error messages
+
+---
+
+## Database Design
+
+```mermaid
+erDiagram
+    USERS ||--o{ BOOKINGS : makes
+    HOTELS ||--o{ ROOMS : contains
+    ROOMS ||--o{ BOOKINGS : reserved_for
+
+    USERS {
+        bigint id
+        string firstName
+        string lastName
+        string email
+        string password
+        string role
+    }
+
+    HOTELS {
+        bigint id
+        string name
+        string city
+        string address
+        text description
+        double rating
+    }
+
+    ROOMS {
+        bigint id
+        string roomNumber
+        string roomType
+        decimal pricePerNight
+        int capacity
+        boolean available
+        bigint hotel_id
+    }
+
+    BOOKINGS {
+        bigint id
+        date checkInDate
+        date checkOutDate
+        decimal totalPrice
+        string status
+        bigint user_id
+        bigint room_id
+    }
 ```
 
-## Authentication & Authorization
+---
 
-The system uses JWT Authentication.
+## Enums
 
-After login, the user receives a JWT token and must send it in the Authorization header for protected endpoints.
-
-```text
-Authorization: Bearer <JWT_TOKEN>
-```
-
-The system currently supports two roles:
+### Role
 
 ```text
 USER
 ADMIN
 ```
 
-Admin-only routes are protected using role-based authorization.
+### RoomType
+
+```text
+SINGLE
+DOUBLE
+SUITE
+DELUXE
+```
+
+### BookingStatus
+
+```text
+PENDING
+CONFIRMED
+CANCELLED
+COMPLETED
+```
+
+---
 
 ## API Endpoints
 
-### Register User
+## Authentication
+
+### Register
 
 ```http
 POST /api/users/register
 ```
 
-Request Body:
+Request body:
 
 ```json
 {
   "firstName": "Mohamed",
   "lastName": "Hendy",
-  "email": "mohamed@example.com",
+  "email": "mohamed@gmail.com",
   "password": "123456"
 }
 ```
@@ -120,11 +196,11 @@ Request Body:
 POST /api/auth/login
 ```
 
-Request Body:
+Request body:
 
 ```json
 {
-  "email": "mohamed@example.com",
+  "email": "mohamed@gmail.com",
   "password": "123456"
 }
 ```
@@ -133,11 +209,11 @@ Response:
 
 ```json
 {
-  "token": "JWT_TOKEN_HERE"
+  "token": "jwt-token-here"
 }
 ```
 
-### Get Authenticated User Test
+### Get Current User
 
 ```http
 GET /api/auth/me
@@ -146,227 +222,421 @@ GET /api/auth/me
 Authorization:
 
 ```text
-Bearer <JWT_TOKEN>
+Bearer Token
 ```
 
-### Admin Dashboard Test
+---
+
+# Public APIs
+
+These endpoints can be accessed without authentication.
+
+## Hotels
+
+### Get All Hotels
+
+```http
+GET /api/hotels
+```
+
+### Get Hotel By ID
+
+```http
+GET /api/hotels/{hotelId}
+```
+
+### Get Rooms By Hotel
+
+```http
+GET /api/hotels/{hotelId}/rooms
+```
+
+### Search Hotels By City
+
+```http
+GET /api/hotels/search?city=Riyadh
+```
+
+### Hotels Pagination & Sorting
+
+```http
+GET /api/hotels/paged?page=0&size=5&sortBy=rating&direction=desc
+```
+
+---
+
+## Rooms
+
+### Get Room By ID
+
+```http
+GET /api/rooms/{roomId}
+```
+
+### Get Available Rooms
+
+```http
+GET /api/rooms/available
+```
+
+### Get Rooms By Type
+
+```http
+GET /api/rooms/type/DOUBLE
+```
+
+### Rooms Pagination & Sorting
+
+```http
+GET /api/rooms/paged?page=0&size=5&sortBy=pricePerNight&direction=asc
+```
+
+---
+
+# User Booking APIs
+
+These endpoints require a logged-in user token.
+
+## Create Booking
+
+```http
+POST /api/bookings
+```
+
+Request body:
+
+```json
+{
+  "roomId": 1,
+  "checkInDate": "2026-07-01",
+  "checkOutDate": "2026-07-05"
+}
+```
+
+Response example:
+
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "userEmail": "mohamed@gmail.com",
+  "roomId": 1,
+  "roomNumber": "101",
+  "hotelId": 1,
+  "hotelName": "Hilton Riyadh",
+  "checkInDate": "2026-07-01",
+  "checkOutDate": "2026-07-05",
+  "nights": 4,
+  "totalPrice": 1000.00,
+  "status": "PENDING"
+}
+```
+
+## Get My Bookings
+
+```http
+GET /api/bookings/my
+```
+
+## Cancel My Booking
+
+```http
+PATCH /api/bookings/{bookingId}/cancel
+```
+
+---
+
+# Admin APIs
+
+These endpoints require an ADMIN token.
+
+## Admin Dashboard
 
 ```http
 GET /api/admin/dashboard
 ```
 
-Authorization:
+---
 
-```text
-Bearer <ADMIN_JWT_TOKEN>
+## Admin Hotel APIs
+
+### Create Hotel
+
+```http
+POST /api/admin/hotels
 ```
 
-Expected Response:
+Request body:
 
-```text
-Welcome Admin
+```json
+{
+  "name": "Hilton Riyadh",
+  "city": "Riyadh",
+  "address": "King Fahd Road",
+  "description": "Luxury hotel in Riyadh",
+  "rating": 4.8
+}
 ```
 
-If a normal user tries to access this endpoint, the response will be:
+### Get All Hotels
 
-```text
-403 Forbidden
+```http
+GET /api/admin/hotels
 ```
 
-## Database Configuration
+### Get Hotel By ID
 
-The project uses PostgreSQL.
-
-The database name should be:
-
-```text
-hotel_booking_db
+```http
+GET /api/admin/hotels/{hotelId}
 ```
 
-Application configuration uses environment variables for sensitive data.
+### Update Hotel
+
+```http
+PUT /api/admin/hotels/{hotelId}
+```
+
+Request body:
+
+```json
+{
+  "name": "Hilton Riyadh Updated",
+  "city": "Riyadh",
+  "rating": 4.9
+}
+```
+
+### Delete Hotel
+
+```http
+DELETE /api/admin/hotels/{hotelId}
+```
+
+Note: A hotel cannot be deleted if it has rooms.
+
+---
+
+## Admin Room APIs
+
+### Create Room For Hotel
+
+```http
+POST /api/admin/rooms/hotel/{hotelId}
+```
+
+Request body:
+
+```json
+{
+  "roomNumber": "101",
+  "roomType": "DOUBLE",
+  "pricePerNight": 250.00,
+  "capacity": 2,
+  "available": true
+}
+```
+
+### Get All Rooms
+
+```http
+GET /api/admin/rooms
+```
+
+### Get Room By ID
+
+```http
+GET /api/admin/rooms/{roomId}
+```
+
+### Get Rooms By Hotel ID
+
+```http
+GET /api/admin/rooms/hotel/{hotelId}
+```
+
+### Update Room
+
+```http
+PUT /api/admin/rooms/{roomId}
+```
+
+Request body:
+
+```json
+{
+  "pricePerNight": 300.00,
+  "capacity": 3,
+  "available": true
+}
+```
+
+### Delete Room
+
+```http
+DELETE /api/admin/rooms/{roomId}
+```
+
+Note: A room cannot be deleted if it has bookings.
+
+---
+
+## Admin Booking APIs
+
+### Get All Bookings
+
+```http
+GET /api/admin/bookings
+```
+
+### Update Booking Status
+
+```http
+PATCH /api/admin/bookings/{bookingId}/status
+```
+
+Request body:
+
+```json
+{
+  "status": "CONFIRMED"
+}
+```
+
+Available statuses:
+
+```text
+PENDING
+CONFIRMED
+CANCELLED
+COMPLETED
+```
+
+---
+
+## Error Response Format
+
+Example:
+
+```json
+{
+  "timestamp": "2026-06-17T15:50:00",
+  "status": 404,
+  "error": "Not Found",
+  "message": "Hotel not found",
+  "path": "/api/admin/hotels/999"
+}
+```
+
+---
+
+## Environment Variables
+
+The project uses environment variables for sensitive configuration.
 
 ```properties
+DB_PASSWORD=your_database_password
+JWT_SECRET=your_jwt_secret
+```
+
+Example `application.properties`:
+
+```properties
+spring.application.name=hotel-booking-system
+
 spring.datasource.url=jdbc:postgresql://localhost:5432/hotel_booking_db
 spring.datasource.username=postgres
 spring.datasource.password=${DB_PASSWORD}
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.open-in-view=false
 
 jwt.secret=${JWT_SECRET}
 jwt.expiration=86400000
 ```
 
-Do not commit real database passwords or JWT secrets to GitHub.
+Do not commit real passwords or secrets to GitHub.
 
-## Environment Variables
+---
 
-Before running the project, configure:
+## How To Run Locally
 
-```text
-DB_PASSWORD=your_postgres_password
-JWT_SECRET=your_long_jwt_secret
-```
-
-Example for local development only:
-
-```text
-DB_PASSWORD=your_password
-JWT_SECRET=your_long_secret_key_for_local_development
-```
-
-## Database ERD
-
-```mermaid
-erDiagram
-    USERS ||--o{ BOOKINGS : makes
-    HOTELS ||--o{ ROOMS : contains
-    ROOMS ||--o{ BOOKINGS : reserved_for
-
-    USERS {
-        Long id PK
-        String first_name
-        String last_name
-        String email
-        String password
-        Role role
-    }
-
-    HOTELS {
-        Long id PK
-        String name
-        String city
-        String address
-        String description
-        Double rating
-    }
-
-    ROOMS {
-        Long id PK
-        String room_number
-        RoomType room_type
-        BigDecimal price_per_night
-        Integer capacity
-        Boolean available
-        Long hotel_id FK
-    }
-
-    BOOKINGS {
-        Long id PK
-        LocalDate check_in_date
-        LocalDate check_out_date
-        BigDecimal total_price
-        BookingStatus status
-        Long user_id FK
-        Long room_id FK
-    }
-```
-
-## Current Progress
-
-* User Registration
-* User Login
-* BCrypt Password Encryption
-* JWT Token Generation
-* JWT Authentication Filter
-* Role-Based Authorization
-* Admin Protected Endpoint
-* PostgreSQL Connection
-* Initial ERD Design
-* Hotel Entity Started
-
-## Upcoming Features
-
-* Hotel Management APIs
-* Room Management APIs
-* Booking Management APIs
-* Booking Availability Check
-* Booking Status Workflow
-* Global Exception Handling
-* Request Validation Improvements
-* API Documentation
-* Unit and Integration Tests
-
-## How to Run Locally
-
-1. Clone the repository:
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/mohameedhendy/hotel-booking-system.git
 ```
 
-2. Open the project in IntelliJ IDEA.
+### 2. Open the project in IntelliJ IDEA
 
-3. Create PostgreSQL database:
+Open the project folder and wait for Maven dependencies to load.
 
-```sql
-CREATE DATABASE hotel_booking_db;
-```
+### 3. Create PostgreSQL database
 
-4. Set environment variables:
+Create a database named:
 
 ```text
-DB_PASSWORD=your_postgres_password
-JWT_SECRET=your_long_jwt_secret
+hotel_booking_db
 ```
 
-5. Run the application:
+### 4. Add environment variables
 
-```bash
-./mvnw spring-boot:run
-```
-
-Or run the main class:
+In IntelliJ IDEA:
 
 ```text
-HotelBookingSystemApplication
+Run → Edit Configurations → Environment variables
 ```
 
+Add:
 
-## Database ERD
+```text
+DB_PASSWORD=your_database_password;JWT_SECRET=your_jwt_secret
+```
 
-erDiagram
-    USERS ||--o{ BOOKINGS : makes
-    HOTELS ||--o{ ROOMS : contains
-    ROOMS ||--o{ BOOKINGS : reserved_for
+### 5. Run the application
 
-    USERS {
-        Long id PK
-        String first_name
-        String last_name
-        String email
-        String password
-        Role role
-    }
+The application will start on:
 
-    HOTELS {
-        Long id PK
-        String name
-        String city
-        String address
-        String description
-        Double rating
-    }
+```text
+http://localhost:8080
+```
 
-    ROOMS {
-        Long id PK
-        String room_number
-        RoomType room_type
-        BigDecimal price_per_night
-        Integer capacity
-        Boolean available
-        Long hotel_id FK
-    }
+---
 
-    BOOKINGS {
-        Long id PK
-        LocalDate check_in_date
-        LocalDate check_out_date
-        BigDecimal total_price
-        BookingStatus status
-        Long user_id FK
-        Long room_id FK
-    }
+## Current Status
+
+The project currently includes:
+
+* User authentication
+* JWT authorization
+* Role-based access control
+* Hotel management
+* Room management
+* Booking workflow
+* Booking status management
+* Public hotel and room APIs
+* Search and filtering
+* Pagination and sorting
+* Global exception handling
+* Improved authentication errors
+
+---
+
+## Future Improvements
+
+* Unit testing and integration testing
+* Swagger / OpenAPI documentation
+* Docker support
+* Refresh tokens
+* Booking payment simulation
+* Advanced room availability search by date range
+* Admin statistics dashboard
+
+---
 
 ## Author
 
 Mohamed Hendy
 
-Backend Developer | Java & Spring Boot
+GitHub: https://github.com/mohameedhendy
