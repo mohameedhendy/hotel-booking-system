@@ -4,6 +4,8 @@ import com.train.hotel_booking_system.dto.LoginRequest;
 import com.train.hotel_booking_system.dto.LoginResponse;
 import com.train.hotel_booking_system.service.UserService;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -16,7 +18,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public LoginResponse login(@RequestBody LoginRequest request) {
+    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
         return userService.login(request);
     }
 

@@ -10,6 +10,10 @@ import org.springframework.stereotype.Service;
 import com.train.hotel_booking_system.dto.LoginRequest;
 import com.train.hotel_booking_system.dto.LoginResponse;
 import com.train.hotel_booking_system.security.JwtService;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class UserService {
@@ -27,6 +31,12 @@ public class UserService {
     }
 
     public UserResponse register(RegisterRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Email is already registered"
+            );
+        }
 
         User user = new User();
 
@@ -51,13 +61,19 @@ public class UserService {
     public LoginResponse login(LoginRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED,
+                        "Invalid email or password"
+                ));
 
         boolean isPasswordCorrect =
                 passwordEncoder.matches(request.getPassword(), user.getPassword());
 
         if (!isPasswordCorrect) {
-            throw new RuntimeException("Invalid email or password");
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Invalid email or password"
+            );
         }
 
         String token = jwtService.generateToken(user);

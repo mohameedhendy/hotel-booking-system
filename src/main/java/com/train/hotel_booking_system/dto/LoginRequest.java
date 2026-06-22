@@ -1,11 +1,18 @@
 package com.train.hotel_booking_system.dto;
 
-import lombok.Data;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class LoginRequest {
 
+    @NotBlank
+    @Email
     private String email;
 
+    @NotBlank
     private String password;
 }
