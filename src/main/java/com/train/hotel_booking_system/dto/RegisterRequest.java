@@ -1,5 +1,6 @@
 package com.train.hotel_booking_system.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -7,19 +8,23 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@Schema(description = "Request body for user registration")
 public class RegisterRequest {
 
+    @Schema(description = "User first name", example = "Mohamed")
     @NotBlank
     private String firstName;
 
+    @Schema(description = "User last name", example = "Hendy")
     @NotBlank
     private String lastName;
 
-    @Email
+    @Schema(description = "User email address", example = "user@example.com")
     @NotBlank
+    @Email
     private String email;
 
+    @Schema(description = "User password", example = "123456")
     @NotBlank
     private String password;
-
 }
