@@ -12,16 +12,22 @@ import com.train.hotel_booking_system.dto.PageResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-
+import com.train.hotel_booking_system.dto.UpdateHotelRequest;
+import com.train.hotel_booking_system.repository.RoomRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @Service
 public class HotelService {
 
     private final HotelRepository hotelRepository;
+    private final RoomRepository roomRepository;
 
-    public HotelService(HotelRepository hotelRepository) {
+    public HotelService(HotelRepository hotelRepository, RoomRepository roomRepository) {
         this.hotelRepository = hotelRepository;
+        this.roomRepository = roomRepository;
     }
 
     public HotelResponse createHotel(CreateHotelRequest request) {
@@ -95,5 +101,50 @@ public class HotelService {
                 hotelsPage.getTotalPages(),
                 hotelsPage.isLast()
         );
+    }
+
+    @Transactional
+    public HotelResponse updateHotel(Long hotelId, UpdateHotelRequest request) {
+        Hotel hotel = hotelRepository.findById(hotelId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Hotel not found"));
+
+        if (request.getName() != null && !request.getName().isBlank()) {
+            hotel.setName(request.getName());
+        }
+
+        if (request.getCity() != null && !request.getCity().isBlank()) {
+            hotel.setCity(request.getCity());
+        }
+
+        if (request.getAddress() != null) {
+            hotel.setAddress(request.getAddress());
+        }
+
+        if (request.getDescription() != null) {
+            hotel.setDescription(request.getDescription());
+        }
+
+        if (request.getRating() != null) {
+            hotel.setRating(request.getRating());
+        }
+
+        Hotel savedHotel = hotelRepository.save(hotel);
+
+        return mapToResponse(savedHotel);
+    }
+
+    @Transactional
+    public void deleteHotel(Long hotelId) {
+        Hotel hotel = hotelRepository.findById(hotelId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Hotel not found"));
+
+        if (roomRepository.existsByHotelId(hotelId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Cannot delete hotel because it has rooms"
+            );
+        }
+
+        hotelRepository.delete(hotel);
     }
 }

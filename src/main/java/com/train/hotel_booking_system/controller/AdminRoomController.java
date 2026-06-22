@@ -5,7 +5,9 @@ import com.train.hotel_booking_system.dto.RoomResponse;
 import com.train.hotel_booking_system.service.RoomService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
-
+import com.train.hotel_booking_system.dto.UpdateRoomRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import java.util.List;
 
 @RestController
@@ -39,5 +41,19 @@ public class AdminRoomController {
     @GetMapping("/hotel/{hotelId}")
     public List<RoomResponse> getRoomsByHotelId(@PathVariable Long hotelId) {
         return roomService.getRoomsByHotelId(hotelId);
+    }
+
+    @PutMapping("/{roomId}")
+    public RoomResponse updateRoom(
+            @PathVariable Long roomId,
+            @Valid @RequestBody UpdateRoomRequest request
+    ) {
+        return roomService.updateRoom(roomId, request);
+    }
+
+    @DeleteMapping("/{roomId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteRoom(@PathVariable Long roomId) {
+        roomService.deleteRoom(roomId);
     }
 }

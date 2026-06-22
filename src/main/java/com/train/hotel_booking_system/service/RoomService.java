@@ -15,7 +15,8 @@ import com.train.hotel_booking_system.dto.PageResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-
+import com.train.hotel_booking_system.dto.UpdateRoomRequest;
+import com.train.hotel_booking_system.repository.BookingRepository;
 import java.util.List;
 
 @Service
@@ -23,10 +24,16 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
     private final HotelRepository hotelRepository;
+    private final BookingRepository bookingRepository;
 
-    public RoomService(RoomRepository roomRepository, HotelRepository hotelRepository) {
+    public RoomService(
+            RoomRepository roomRepository,
+            HotelRepository hotelRepository,
+            BookingRepository bookingRepository
+    ) {
         this.roomRepository = roomRepository;
         this.hotelRepository = hotelRepository;
+        this.bookingRepository = bookingRepository;
     }
 
     @Transactional
@@ -127,5 +134,50 @@ public class RoomService {
                 roomsPage.getTotalPages(),
                 roomsPage.isLast()
         );
+    }
+
+    @Transactional
+    public RoomResponse updateRoom(Long roomId, UpdateRoomRequest request) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found"));
+
+        if (request.getRoomNumber() != null && !request.getRoomNumber().isBlank()) {
+            room.setRoomNumber(request.getRoomNumber());
+        }
+
+        if (request.getRoomType() != null) {
+            room.setRoomType(request.getRoomType());
+        }
+
+        if (request.getPricePerNight() != null) {
+            room.setPricePerNight(request.getPricePerNight());
+        }
+
+        if (request.getCapacity() != null) {
+            room.setCapacity(request.getCapacity());
+        }
+
+        if (request.getAvailable() != null) {
+            room.setAvailable(request.getAvailable());
+        }
+
+        Room savedRoom = roomRepository.save(room);
+
+        return mapToResponse(savedRoom);
+    }
+
+    @Transactional
+    public void deleteRoom(Long roomId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found"));
+
+        if (bookingRepository.existsByRoomId(roomId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Cannot delete room because it has bookings"
+            );
+        }
+
+        roomRepository.delete(room);
     }
 }
