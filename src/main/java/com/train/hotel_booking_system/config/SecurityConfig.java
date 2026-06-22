@@ -33,7 +33,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/users/register",
-                                "/api/auth/login"
+                                "/api/auth/login",
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs",
+                                "/v3/api-docs/**"
                         ).permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/hotels/**").permitAll()
