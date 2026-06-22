@@ -8,6 +8,10 @@ import com.train.hotel_booking_system.dto.PageResponse;
 import java.util.List;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import com.train.hotel_booking_system.entity.RoomType;
+import org.springframework.format.annotation.DateTimeFormat;
+import java.time.LocalDate;
+import java.util.List;
 
 
 @Tag(name = "Public Rooms", description = "Public APIs for browsing and filtering rooms")
@@ -48,5 +52,26 @@ public class RoomController {
             @RequestParam(defaultValue = "asc") String direction
     ) {
         return roomService.getRoomsPaged(page, size, sortBy, direction);
+    }
+
+    @Operation(
+            summary = "Search available rooms by date range",
+            description = "Returns available rooms that are not booked during the selected date range. Optional filters: city, hotelId, roomType"
+    )
+    @GetMapping("/search-available")
+    public List<RoomResponse> searchAvailableRooms(
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) Long hotelId,
+            @RequestParam(required = false) RoomType roomType,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkInDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOutDate
+    ) {
+        return roomService.searchAvailableRooms(
+                city,
+                hotelId,
+                roomType,
+                checkInDate,
+                checkOutDate
+        );
     }
 }

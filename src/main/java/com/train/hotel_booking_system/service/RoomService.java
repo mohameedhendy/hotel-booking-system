@@ -18,6 +18,15 @@ import org.springframework.data.domain.Sort;
 import com.train.hotel_booking_system.dto.UpdateRoomRequest;
 import com.train.hotel_booking_system.repository.BookingRepository;
 import java.util.List;
+import com.train.hotel_booking_system.entity.BookingStatus;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+import java.time.LocalDate;
+import com.train.hotel_booking_system.entity.BookingStatus;
+import com.train.hotel_booking_system.entity.RoomType;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
 
 @Service
 public class RoomService {
@@ -179,5 +188,43 @@ public class RoomService {
         }
 
         roomRepository.delete(room);
+    }
+
+    @Transactional(readOnly = true)
+    public List<RoomResponse> searchAvailableRooms(
+            String city,
+            Long hotelId,
+            RoomType roomType,
+            LocalDate checkInDate,
+            LocalDate checkOutDate
+    ) {
+        if (!checkOutDate.isAfter(checkInDate)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Check-out date must be after check-in date"
+            );
+        }
+
+        return roomRepository.findAvailableRoomsByDateRange(
+                        checkInDate,
+                        checkOutDate,
+                        BookingStatus.CANCELLED
+                )
+                .stream()
+                .filter(room ->
+                        city == null ||
+                                city.isBlank() ||
+                                room.getHotel().getCity().equalsIgnoreCase(city)
+                )
+                .filter(room ->
+                        hotelId == null ||
+                                room.getHotel().getId().equals(hotelId)
+                )
+                .filter(room ->
+                        roomType == null ||
+                                room.getRoomType() == roomType
+                )
+                .map(this::mapToResponse)
+                .toList();
     }
 }
