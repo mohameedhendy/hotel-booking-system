@@ -6,7 +6,11 @@ import com.train.hotel_booking_system.dto.UserResponse;
 import com.train.hotel_booking_system.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
+
+@Tag(name = "Users", description = "User registration APIs")
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -17,6 +21,7 @@ public class UserController {
         this.userService = userService;
     }
 
+    @Operation(summary = "Register new user", description = "Creates a new user account with USER role")
     @PostMapping("/register")
     public UserResponse register(
             @Valid @RequestBody RegisterRequest request

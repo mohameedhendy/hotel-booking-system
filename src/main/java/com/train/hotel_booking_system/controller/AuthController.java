@@ -5,8 +5,11 @@ import com.train.hotel_booking_system.dto.LoginResponse;
 import com.train.hotel_booking_system.service.UserService;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
-
+@Tag(name = "Authentication", description = "Login and authenticated user APIs")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -17,11 +20,14 @@ public class AuthController {
         this.userService = userService;
     }
 
+    @Operation(summary = "Login user", description = "Authenticates user and returns JWT token")
     @PostMapping("/login")
     public LoginResponse login(@Valid @RequestBody LoginRequest request) {
         return userService.login(request);
     }
 
+    @Operation(summary = "Get current user", description = "Returns information about the currently authenticated user")
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/me")
     public String me() {
         return "You are authenticated";
