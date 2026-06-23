@@ -103,6 +103,25 @@ public class BookingService {
     }
 
     @Transactional(readOnly = true)
+    public BookingResponse getMyBookingById(String userEmail, Long bookingId) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        Booking booking = bookingRepository.findByIdAndUserId(bookingId, user.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Booking not found"));
+
+        return mapToResponse(booking);
+    }
+
+    @Transactional(readOnly = true)
+    public BookingResponse getBookingByIdForAdmin(Long bookingId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Booking not found"));
+
+        return mapToResponse(booking);
+    }
+
+    @Transactional(readOnly = true)
     public List<BookingResponse> getAllBookings() {
         return bookingRepository.findAll()
                 .stream()
@@ -147,15 +166,71 @@ public class BookingService {
     }
 
     @Transactional
-    public BookingResponse updateBookingStatus(Long bookingId, BookingStatus status) {
+    public BookingResponse updateBookingStatus(Long bookingId, BookingStatus newStatus) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Booking not found"));
 
-        booking.setStatus(status);
+        validateStatusTransition(booking.getStatus(), newStatus);
+
+        booking.setStatus(newStatus);
 
         Booking savedBooking = bookingRepository.save(booking);
 
         return mapToResponse(savedBooking);
+    }
+
+    @Transactional
+    public BookingResponse adminCancelBooking(Long bookingId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Booking not found"));
+
+        validateStatusTransition(booking.getStatus(), BookingStatus.CANCELLED);
+
+        booking.setStatus(BookingStatus.CANCELLED);
+
+        Booking savedBooking = bookingRepository.save(booking);
+
+        return mapToResponse(savedBooking);
+    }
+
+    private void validateStatusTransition(BookingStatus currentStatus, BookingStatus newStatus) {
+        if (currentStatus == newStatus) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Booking is already " + currentStatus
+            );
+        }
+
+        if (currentStatus == BookingStatus.CANCELLED) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Cancelled booking status cannot be changed"
+            );
+        }
+
+        if (currentStatus == BookingStatus.COMPLETED) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Completed booking status cannot be changed"
+            );
+        }
+
+        if (currentStatus == BookingStatus.PENDING) {
+            if (newStatus == BookingStatus.CONFIRMED || newStatus == BookingStatus.CANCELLED) {
+                return;
+            }
+        }
+
+        if (currentStatus == BookingStatus.CONFIRMED) {
+            if (newStatus == BookingStatus.COMPLETED || newStatus == BookingStatus.CANCELLED) {
+                return;
+            }
+        }
+
+        throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Invalid booking status transition from " + currentStatus + " to " + newStatus
+        );
     }
 
     private BookingResponse mapToResponse(Booking booking) {

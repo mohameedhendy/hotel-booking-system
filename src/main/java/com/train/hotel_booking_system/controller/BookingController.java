@@ -46,4 +46,13 @@ public class BookingController {
     ) {
         return bookingService.cancelMyBooking(authentication.getName(), bookingId);
     }
+
+    @Operation(summary = "Get my booking by ID", description = "Returns a single booking owned by the authenticated user")
+    @GetMapping("/{bookingId}")
+    public BookingResponse getMyBookingById(
+            @PathVariable Long bookingId,
+            Authentication authentication
+    ) {
+        return bookingService.getMyBookingById(authentication.getName(), bookingId);
+    }
 }
