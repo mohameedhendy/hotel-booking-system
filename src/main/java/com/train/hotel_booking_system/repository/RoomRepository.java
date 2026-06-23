@@ -43,4 +43,6 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
             @Param("checkOutDate") LocalDate checkOutDate,
             @Param("cancelledStatus") BookingStatus cancelledStatus
     );
+
+    boolean existsByHotelIdAndRoomNumber(Long hotelId, String roomNumber);
 }
