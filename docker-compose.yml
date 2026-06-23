@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: hotel_booking_postgres
+    environment:
+      POSTGRES_DB: hotel_booking_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d hotel_booking_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: hotel_booking_app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/hotel_booking_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      APP_SEED_ENABLED: true
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:
