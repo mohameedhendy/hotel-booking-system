@@ -12,6 +12,9 @@ import com.train.hotel_booking_system.entity.RoomType;
 import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDate;
 import java.util.List;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 
 @Tag(name = "Public Rooms", description = "Public APIs for browsing and filtering rooms")
@@ -56,15 +59,53 @@ public class RoomController {
 
     @Operation(
             summary = "Search available rooms by date range",
-            description = "Returns available rooms that are not booked during the selected date range. Optional filters: city, hotelId, roomType"
+            description = """
+                Returns rooms that are available and not booked during the selected date range.
+                Optional filters can be used: city, hotelId, and roomType.
+                """
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Available rooms returned successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid date range"),
+            @ApiResponse(responseCode = "500", description = "Unexpected server error")
+    })
     @GetMapping("/search-available")
     public List<RoomResponse> searchAvailableRooms(
+            @Parameter(
+                    description = "Optional city filter",
+                    example = "Riyadh"
+            )
             @RequestParam(required = false) String city,
+
+            @Parameter(
+                    description = "Optional hotel ID filter",
+                    example = "1"
+            )
             @RequestParam(required = false) Long hotelId,
+
+            @Parameter(
+                    description = "Optional room type filter",
+                    example = "DOUBLE"
+            )
             @RequestParam(required = false) RoomType roomType,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkInDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOutDate
+
+            @Parameter(
+                    description = "Check-in date",
+                    example = "2026-07-10",
+                    required = true
+            )
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate checkInDate,
+
+            @Parameter(
+                    description = "Check-out date",
+                    example = "2026-07-15",
+                    required = true
+            )
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate checkOutDate
     ) {
         return roomService.searchAvailableRooms(
                 city,
