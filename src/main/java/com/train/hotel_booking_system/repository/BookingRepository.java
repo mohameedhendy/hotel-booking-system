@@ -5,7 +5,9 @@ import com.train.hotel_booking_system.entity.BookingStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -28,4 +30,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     );
 
     boolean existsByRoomId(Long roomId);
+
+    long countByStatus(BookingStatus status);
+
+    @Query("SELECT SUM(b.totalPrice) FROM Booking b WHERE b.status = :status")
+    BigDecimal sumTotalPriceByStatus(@Param("status") BookingStatus status);
 }

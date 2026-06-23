@@ -45,4 +45,6 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     );
 
     boolean existsByHotelIdAndRoomNumber(Long hotelId, String roomNumber);
+
+    long countByAvailableTrue();
 }
