@@ -4,6 +4,7 @@ import com.train.hotel_booking_system.entity.RoomType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 public class UpdateRoomRequest {
 
     @Schema(description = "Room number", example = "102")
+    @Size(min = 1, max = 20)
     private String roomNumber;
 
     @Schema(

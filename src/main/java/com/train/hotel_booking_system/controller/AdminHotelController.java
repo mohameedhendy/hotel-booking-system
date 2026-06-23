@@ -48,7 +48,7 @@ public class AdminHotelController {
     @PutMapping("/{hotelId}")
     public HotelResponse updateHotel(
             @PathVariable Long hotelId,
-            @RequestBody UpdateHotelRequest request
+            @Valid @RequestBody UpdateHotelRequest request
     ) {
         return hotelService.updateHotel(hotelId, request);
     }

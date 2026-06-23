@@ -1,6 +1,8 @@
 package com.train.hotel_booking_system.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,9 +20,11 @@ public class CreateBookingRequest {
 
     @Schema(description = "Check-in date", example = "2026-07-01")
     @NotNull
+    @FutureOrPresent
     private LocalDate checkInDate;
 
     @Schema(description = "Check-out date", example = "2026-07-05")
     @NotNull
+    @Future
     private LocalDate checkOutDate;
 }

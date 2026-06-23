@@ -2,10 +2,7 @@ package com.train.hotel_booking_system.dto;
 
 import com.train.hotel_booking_system.entity.RoomType;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,6 +15,7 @@ public class CreateRoomRequest {
 
     @Schema(description = "Room number", example = "101")
     @NotBlank
+    @   Size(min = 1, max = 20)
     private String roomNumber;
 
     @Schema(

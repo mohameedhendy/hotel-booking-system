@@ -3,6 +3,7 @@ package com.train.hotel_booking_system.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,10 +14,12 @@ public class RegisterRequest {
 
     @Schema(description = "User first name", example = "Mohamed")
     @NotBlank
+    @Size(min = 2, max = 50)
     private String firstName;
 
     @Schema(description = "User last name", example = "Hendy")
     @NotBlank
+    @Size(min = 2, max = 50)
     private String lastName;
 
     @Schema(description = "User email address", example = "user@example.com")
@@ -26,5 +29,6 @@ public class RegisterRequest {
 
     @Schema(description = "User password", example = "123456")
     @NotBlank
+    @Size(min = 6, max = 100)
     private String password;
 }
