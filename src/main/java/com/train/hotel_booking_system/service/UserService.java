@@ -1,18 +1,17 @@
 package com.train.hotel_booking_system.service;
 
+import com.train.hotel_booking_system.dto.LoginRequest;
+import com.train.hotel_booking_system.dto.LoginResponse;
 import com.train.hotel_booking_system.dto.RegisterRequest;
 import com.train.hotel_booking_system.dto.UserResponse;
 import com.train.hotel_booking_system.entity.Role;
 import com.train.hotel_booking_system.entity.User;
 import com.train.hotel_booking_system.repository.UserRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import com.train.hotel_booking_system.dto.LoginRequest;
-import com.train.hotel_booking_system.dto.LoginResponse;
 import com.train.hotel_booking_system.security.JwtService;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -78,5 +77,20 @@ public class UserService {
 
         String token = jwtService.generateToken(user);
         return new LoginResponse(token);
+    }
+
+    @Transactional(readOnly = true)
+    public UserResponse getCurrentUser(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        UserResponse response = new UserResponse();
+        response.setId(user.getId());
+        response.setFirstName(user.getFirstName());
+        response.setLastName(user.getLastName());
+        response.setEmail(user.getEmail());
+        response.setRole(user.getRole());
+
+        return response;
     }
 }

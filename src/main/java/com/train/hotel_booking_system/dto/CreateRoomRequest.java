@@ -15,7 +15,7 @@ public class CreateRoomRequest {
 
     @Schema(description = "Room number", example = "101")
     @NotBlank
-    @   Size(min = 1, max = 20)
+    @Size(min = 1, max = 20)
     private String roomNumber;
 
     @Schema(

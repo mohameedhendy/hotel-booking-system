@@ -1,14 +1,15 @@
 package com.train.hotel_booking_system.controller;
 
 import com.train.hotel_booking_system.dto.HotelResponse;
+import com.train.hotel_booking_system.dto.PageResponse;
 import com.train.hotel_booking_system.dto.RoomResponse;
 import com.train.hotel_booking_system.service.HotelService;
 import com.train.hotel_booking_system.service.RoomService;
-import org.springframework.web.bind.annotation.*;
-import com.train.hotel_booking_system.dto.PageResponse;
-import java.util.List;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "Public Hotels", description = "Public APIs for browsing and searching hotels")
 @RestController

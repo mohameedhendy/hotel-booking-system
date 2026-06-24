@@ -3,6 +3,7 @@ package com.train.hotel_booking_system.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
 

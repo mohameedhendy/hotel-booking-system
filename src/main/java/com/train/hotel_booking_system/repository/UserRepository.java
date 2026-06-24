@@ -2,6 +2,7 @@ package com.train.hotel_booking_system.repository;
 
 import com.train.hotel_booking_system.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.util.Optional;
 
 

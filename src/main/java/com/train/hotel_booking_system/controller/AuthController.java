@@ -2,12 +2,14 @@ package com.train.hotel_booking_system.controller;
 
 import com.train.hotel_booking_system.dto.LoginRequest;
 import com.train.hotel_booking_system.dto.LoginResponse;
+import com.train.hotel_booking_system.dto.UserResponse;
 import com.train.hotel_booking_system.service.UserService;
-import org.springframework.web.bind.annotation.*;
-import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Authentication", description = "Login and authenticated user APIs")
 @RestController
@@ -29,7 +31,7 @@ public class AuthController {
     @Operation(summary = "Get current user", description = "Returns information about the currently authenticated user")
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/me")
-    public String me() {
-        return "You are authenticated";
+    public UserResponse me(Authentication authentication) {
+        return userService.getCurrentUser(authentication.getName());
     }
 }

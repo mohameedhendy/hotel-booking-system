@@ -1,10 +1,6 @@
 package com.train.hotel_booking_system.config;
 
-import com.train.hotel_booking_system.entity.Hotel;
-import com.train.hotel_booking_system.entity.Role;
-import com.train.hotel_booking_system.entity.Room;
-import com.train.hotel_booking_system.entity.RoomType;
-import com.train.hotel_booking_system.entity.User;
+import com.train.hotel_booking_system.entity.*;
 import com.train.hotel_booking_system.repository.HotelRepository;
 import com.train.hotel_booking_system.repository.RoomRepository;
 import com.train.hotel_booking_system.repository.UserRepository;

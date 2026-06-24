@@ -1,7 +1,8 @@
 # Hotel Booking System API
 
 A backend-only hotel booking system built with **Java Spring Boot**.
-The project provides REST APIs for user authentication, hotel management, room management, bookings, admin dashboard statistics, Swagger documentation, and Docker support.
+The project provides REST APIs for user authentication, hotel management, room management, bookings, admin dashboard
+statistics, Swagger documentation, and Docker support.
 
 ---
 
@@ -493,15 +494,3 @@ The project includes:
 * Swagger documentation
 * Docker support
 * Demo seed data
-
----
-
-## Author
-
-Mohamed Hendy
-
-GitHub:
-
-```text
-https://github.com/mohameedhendy
-```
