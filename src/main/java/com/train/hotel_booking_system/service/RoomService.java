@@ -22,12 +22,12 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDate;
 import java.util.List;
 
-
 @Service
 public class RoomService {
 
     private static final List<String> ALLOWED_SORT_FIELDS =
             List.of("id", "roomNumber", "roomType", "pricePerNight", "capacity");
+
     private final RoomRepository roomRepository;
     private final HotelRepository hotelRepository;
     private final BookingRepository bookingRepository;
@@ -46,6 +46,13 @@ public class RoomService {
     public RoomResponse createRoom(Long hotelId, CreateRoomRequest request) {
         Hotel hotel = hotelRepository.findById(hotelId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Hotel not found"));
+
+        if (roomRepository.existsByHotelIdAndRoomNumber(hotelId, request.getRoomNumber())) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Room number already exists in this hotel"
+            );
+        }
 
         Room room = new Room();
         room.setRoomNumber(request.getRoomNumber());
@@ -82,22 +89,6 @@ public class RoomService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found"));
 
         return mapToResponse(room);
-    }
-
-    private RoomResponse mapToResponse(Room room) {
-        RoomResponse response = new RoomResponse();
-
-        response.setId(room.getId());
-        response.setRoomNumber(room.getRoomNumber());
-        response.setRoomType(room.getRoomType());
-        response.setPricePerNight(room.getPricePerNight());
-        response.setCapacity(room.getCapacity());
-        response.setAvailable(room.getAvailable());
-
-        response.setHotelId(room.getHotel().getId());
-        response.setHotelName(room.getHotel().getName());
-
-        return response;
     }
 
     @Transactional(readOnly = true)
@@ -151,6 +142,21 @@ public class RoomService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found"));
 
         if (request.getRoomNumber() != null && !request.getRoomNumber().isBlank()) {
+            boolean roomNumberChanged = !request.getRoomNumber().equals(room.getRoomNumber());
+
+            if (
+                    roomNumberChanged &&
+                            roomRepository.existsByHotelIdAndRoomNumber(
+                                    room.getHotel().getId(),
+                                    request.getRoomNumber()
+                            )
+            ) {
+                throw new ResponseStatusException(
+                        HttpStatus.CONFLICT,
+                        "Room number already exists in this hotel"
+                );
+            }
+
             room.setRoomNumber(request.getRoomNumber());
         }
 
@@ -216,6 +222,21 @@ public class RoomService {
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
+    }
+
+    private RoomResponse mapToResponse(Room room) {
+        RoomResponse response = new RoomResponse();
+
+        response.setId(room.getId());
+        response.setRoomNumber(room.getRoomNumber());
+        response.setRoomType(room.getRoomType());
+        response.setPricePerNight(room.getPricePerNight());
+        response.setCapacity(room.getCapacity());
+        response.setAvailable(room.getAvailable());
+        response.setHotelId(room.getHotel().getId());
+        response.setHotelName(room.getHotel().getName());
+
+        return response;
     }
 
     private String validateSortBy(String sortBy) {
