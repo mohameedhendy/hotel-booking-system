@@ -1,22 +1,19 @@
 package com.train.hotel_booking_system.controller;
 
+import com.train.hotel_booking_system.dto.PageResponse;
 import com.train.hotel_booking_system.dto.RoomResponse;
 import com.train.hotel_booking_system.entity.RoomType;
 import com.train.hotel_booking_system.service.RoomService;
-import org.springframework.web.bind.annotation.*;
-import com.train.hotel_booking_system.dto.PageResponse;
-
-import java.util.List;
-
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.time.LocalDate;
-
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
 
 
 @Tag(name = "Public Rooms", description = "Public APIs for browsing and filtering rooms")

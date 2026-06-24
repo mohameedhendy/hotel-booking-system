@@ -24,20 +24,20 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     boolean existsByHotelId(Long hotelId);
 
     @Query("""
-    SELECT r FROM Room r
-    JOIN FETCH r.hotel h
-    WHERE r.available = true
-    AND (:city IS NULL OR LOWER(h.city) = LOWER(:city))
-    AND (:hotelId IS NULL OR h.id = :hotelId)
-    AND (:roomType IS NULL OR r.roomType = :roomType)
-    AND NOT EXISTS (
-        SELECT b FROM Booking b
-        WHERE b.room = r
-        AND b.status <> :cancelledStatus
-        AND b.checkInDate < :checkOutDate
-        AND b.checkOutDate > :checkInDate
-    )
-    """)
+            SELECT r FROM Room r
+            JOIN FETCH r.hotel h
+            WHERE r.available = true
+            AND (:city IS NULL OR LOWER(h.city) = LOWER(:city))
+            AND (:hotelId IS NULL OR h.id = :hotelId)
+            AND (:roomType IS NULL OR r.roomType = :roomType)
+            AND NOT EXISTS (
+                SELECT b FROM Booking b
+                WHERE b.room = r
+                AND b.status <> :cancelledStatus
+                AND b.checkInDate < :checkOutDate
+                AND b.checkOutDate > :checkInDate
+            )
+            """)
     List<Room> findAvailableRoomsByDateRangeAndFilters(
             @Param("checkInDate") LocalDate checkInDate,
             @Param("checkOutDate") LocalDate checkOutDate,
