@@ -192,11 +192,11 @@ public class RoomService {
 
     @Transactional(readOnly = true)
     public List<RoomResponse> searchAvailableRooms(
+            LocalDate checkInDate,
+            LocalDate checkOutDate,
             String city,
             Long hotelId,
-            RoomType roomType,
-            LocalDate checkInDate,
-            LocalDate checkOutDate
+            RoomType roomType
     ) {
         if (!checkOutDate.isAfter(checkInDate)) {
             throw new ResponseStatusException(
@@ -205,25 +205,15 @@ public class RoomService {
             );
         }
 
-        return roomRepository.findAvailableRoomsByDateRange(
+        return roomRepository.findAvailableRoomsByDateRangeAndFilters(
                         checkInDate,
                         checkOutDate,
-                        BookingStatus.CANCELLED
+                        BookingStatus.CANCELLED,
+                        city,
+                        hotelId,
+                        roomType
                 )
                 .stream()
-                .filter(room ->
-                        city == null ||
-                                city.isBlank() ||
-                                room.getHotel().getCity().equalsIgnoreCase(city)
-                )
-                .filter(room ->
-                        hotelId == null ||
-                                room.getHotel().getId().equals(hotelId)
-                )
-                .filter(room ->
-                        roomType == null ||
-                                room.getRoomType() == roomType
-                )
                 .map(this::mapToResponse)
                 .toList();
     }
