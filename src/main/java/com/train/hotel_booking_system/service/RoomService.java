@@ -26,6 +26,8 @@ import java.util.List;
 @Service
 public class RoomService {
 
+    private static final List<String> ALLOWED_SORT_FIELDS =
+            List.of("id", "roomNumber", "roomType", "pricePerNight", "capacity");
     private final RoomRepository roomRepository;
     private final HotelRepository hotelRepository;
     private final BookingRepository bookingRepository;
@@ -121,11 +123,14 @@ public class RoomService {
             String sortBy,
             String direction
     ) {
-        Sort sort = direction.equalsIgnoreCase("desc")
-                ? Sort.by(sortBy).descending()
-                : Sort.by(sortBy).ascending();
+        String validSortBy = validateSortBy(sortBy);
+        Sort.Direction sortDirection = validateSortDirection(direction);
 
-        PageRequest pageRequest = PageRequest.of(page, size, sort);
+        PageRequest pageRequest = PageRequest.of(
+                page,
+                size,
+                Sort.by(sortDirection, validSortBy)
+        );
 
         Page<RoomResponse> roomsPage = roomRepository.findAll(pageRequest)
                 .map(this::mapToResponse);
@@ -221,5 +226,39 @@ public class RoomService {
                 )
                 .map(this::mapToResponse)
                 .toList();
+    }
+
+    private String validateSortBy(String sortBy) {
+        if (sortBy == null || sortBy.isBlank()) {
+            return "id";
+        }
+
+        if (!ALLOWED_SORT_FIELDS.contains(sortBy)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid sort field. Allowed fields: " + ALLOWED_SORT_FIELDS
+            );
+        }
+
+        return sortBy;
+    }
+
+    private Sort.Direction validateSortDirection(String direction) {
+        if (direction == null || direction.isBlank()) {
+            return Sort.Direction.ASC;
+        }
+
+        if (direction.equalsIgnoreCase("asc")) {
+            return Sort.Direction.ASC;
+        }
+
+        if (direction.equalsIgnoreCase("desc")) {
+            return Sort.Direction.DESC;
+        }
+
+        throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Invalid sort direction. Use asc or desc"
+        );
     }
 }
