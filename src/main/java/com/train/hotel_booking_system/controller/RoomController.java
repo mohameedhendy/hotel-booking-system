@@ -1,19 +1,22 @@
 package com.train.hotel_booking_system.controller;
 
-import com.train.hotel_booking_system.dto.PageResponse;
 import com.train.hotel_booking_system.dto.RoomResponse;
 import com.train.hotel_booking_system.entity.RoomType;
 import com.train.hotel_booking_system.service.RoomService;
+import org.springframework.web.bind.annotation.*;
+import com.train.hotel_booking_system.dto.PageResponse;
+
+import java.util.List;
+
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDate;
+
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import java.util.List;
 
 
 @Tag(name = "Public Rooms", description = "Public APIs for browsing and filtering rooms")
@@ -68,6 +71,7 @@ public class RoomController {
             @ApiResponse(responseCode = "400", description = "Invalid date range"),
             @ApiResponse(responseCode = "500", description = "Unexpected server error")
     })
+
     @GetMapping("/search-available")
     public List<RoomResponse> searchAvailableRooms(
             @Parameter(
@@ -107,11 +111,11 @@ public class RoomController {
             LocalDate checkOutDate
     ) {
         return roomService.searchAvailableRooms(
+                checkInDate,
+                checkOutDate,
                 city,
                 hotelId,
-                roomType,
-                checkInDate,
-                checkOutDate
+                roomType
         );
     }
 }

@@ -182,7 +182,7 @@ public class RoomService {
 
         if (bookingRepository.existsByRoomId(roomId)) {
             throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
+                    HttpStatus.CONFLICT,
                     "Cannot delete room because it has bookings"
             );
         }

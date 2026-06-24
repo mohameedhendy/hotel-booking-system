@@ -143,7 +143,7 @@ public class HotelService {
 
         if (roomRepository.existsByHotelId(hotelId)) {
             throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
+                    HttpStatus.CONFLICT,
                     "Cannot delete hotel because it has rooms"
             );
         }
